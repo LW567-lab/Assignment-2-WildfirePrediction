@@ -1,5 +1,4 @@
 # Assignment-2-WildfirePrediction
-#  Forest Fire Prediction Project
 
 ##  Introduction
 This project aims to predict forest fire occurrence and severity using machine learning techniques. We use meteorological data such as temperature, humidity, wind speed, and precipitation to build predictive models.
