@@ -30,3 +30,5 @@ if st.button("🔥 Predict Wildfire Occurrence"):
         st.error("⚠️ A wildfire is likely to occur!")
     else:
         st.success("✅ No wildfire risk detected.")
+
+# trigger redeploy
