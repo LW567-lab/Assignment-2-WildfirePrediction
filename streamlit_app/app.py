@@ -2,18 +2,28 @@ import streamlit as st
 import joblib
 import numpy as np
 
+# Load the trained model
 model = joblib.load("random_forest_model.pkl")
 
 st.title("🌲 Wildfire Occurrence Predictor")
 st.write("Enter weather conditions and the model will predict whether a wildfire might occur.")
 
-temp = st.number_input("🌡 Temperature (°C)", min_value=0.0, max_value=50.0, value=20.0)
-RH = st.number_input("💧 Relative Humidity (%)", min_value=0.0, max_value=100.0, value=40.0)
-wind = st.number_input("🍃 Wind Speed (km/h)", min_value=0.0, max_value=50.0, value=10.0)
-rain = st.number_input("🌧 Rainfall (mm)", min_value=0.0, max_value=20.0, value=0.0)
+# Input fields
+temp = st.number_input("🌡 Temperature (°C)", value=20.0)
+RH = st.number_input("💧 Relative Humidity (%)", value=40.0)
+wind = st.number_input("🍃 Wind Speed (km/h)", value=10.0)
+rain = st.number_input("🌧 Rainfall (mm)", value=0.0)
 
-X_input = np.array([[temp, RH, wind, rain]])
+# Derived features
+temp_squared = temp ** 2
+wind_squared = wind ** 2
+temp_wind = temp * wind
+humidity_wind = RH * wind
 
+# Build input vector (must match model training feature order)
+X_input = np.array([[temp, RH, wind, rain, temp_squared, wind_squared, temp_wind, humidity_wind]])
+
+# Prediction
 if st.button("🔥 Predict Wildfire Occurrence"):
     prediction = model.predict(X_input)
     if prediction[0] == 1:
