@@ -2,40 +2,33 @@ import streamlit as st
 import joblib
 import numpy as np
 import pandas as pd
-import math
 
 st.set_page_config(page_title="Wildfire Predictor", page_icon="🔥")
 st.title("🌲 Wildfire Occurrence Predictor")
 
-st.write("Enter environmental conditions to predict the risk of wildfire occurrence.")
+st.write("Enter temperature, humidity, and wind conditions to predict wildfire risk.")
 
-# Input fields — must match training features
-ffmc = st.slider("FFMC (Fine Fuel Moisture Code)", 0.0, 100.0, 85.0)
-dmc = st.slider("DMC (Duff Moisture Code)", 0.0, 300.0, 100.0)
-dc = st.slider("DC (Drought Code)", 0.0, 800.0, 300.0)
-isi = st.slider("ISI (Initial Spread Index)", 0.0, 50.0, 10.0)
 temp = st.slider("🌡 Temperature (°C)", 0.0, 50.0, 20.0)
-RH = st.slider("💧 Relative Humidity (%)", 0.0, 100.0, 45.0)
+RH = st.slider("💧 Relative Humidity (%)", 0.0, 100.0, 40.0)
 wind = st.slider("🍃 Wind Speed (km/h)", 0.0, 100.0, 10.0)
-month = st.selectbox("📅 Month", list(range(1, 13)))
-day = st.selectbox("📆 Day of Week (1=Mon, 7=Sun)", list(range(1, 8)))
 
-# Encode cyclical features
-month_sin = math.sin(2 * math.pi * month / 12)
-month_cos = math.cos(2 * math.pi * month / 12)
-day_sin = math.sin(2 * math.pi * day / 7)
-day_cos = math.cos(2 * math.pi * day / 7)
+temp_squared = temp ** 2
+wind_squared = wind ** 2
+temp_wind = temp * wind
+humidity_wind = RH * wind
 
 X_input = pd.DataFrame([[
-    ffmc, dmc, dc, isi, temp, RH, wind,
-    month, day, month_sin, month_cos, day_sin, day_cos
+    temp, RH, wind, temp_squared, wind_squared, temp_wind, humidity_wind
 ]], columns=[
-    'FFMC', 'DMC', 'DC', 'ISI', 'temp', 'RH', 'wind',
-    'month', 'day', 'month_sin', 'month_cos', 'day_sin', 'day_cos'
+    'temp', 'RH', 'wind', 'temp_squared', 'wind_squared', 'temp_wind', 'humidity_wind'
 ])
 
-# Load model and predict
-model = joblib.load("random_forest_model.pkl")
+try:
+    model = joblib.load("random_forest_model.pkl")
+except Exception as e:
+    st.error(f"❌ Failed to load model: {e}")
+    st.stop()
+
 if st.button("🔥 Predict"):
     prediction = model.predict(X_input)
     if prediction[0] == 1:
